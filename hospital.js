@@ -2,7 +2,7 @@
 const readline = require('readline');
 const prompt = require('prompt')
 var colors = require("colors/safe");
-var schema = {
+var login = {
    properties: {
      username: {
        description: 'Please input your username',
@@ -29,6 +29,44 @@ var schema = {
     }
   };
 
+  var add = {
+     properties: {
+       _name: {
+         description: 'Please input your patient name',
+         pattern: /^[a-zA-Z\s]+$/,
+         message: 'Please enter a valid name',
+         required: true
+       },
+       _diseases: {
+         description: 'Please input your patient diseases',
+         pattern: /^[a-zA-Z\s]+$/,
+         message: 'Please enter a valid diseases',
+         required: true
+       }
+     }
+   };
+
+   var rmv = {
+      properties: {
+        id_patient: {
+          pattern: /^[0-9]+$/,
+          message: 'Please input a valid patient id',
+          required: true
+        }
+      }
+    };
+
+    var find = {
+       properties: {
+         id_patient: {
+           pattern: /^[0-9]+$/,
+           message: 'Please input a valid patient id',
+           required: true
+         }
+       }
+     };
+
+
 
 class Hospital{
   constructor(property){
@@ -44,6 +82,10 @@ class Hospital{
     this._staff.push(value)
   }
 
+  addPatient(value){
+    this._patient.push(value)
+  }
+
    welcome(){
     Interface.clearScreen()
     Interface.home()
@@ -55,10 +97,10 @@ class Hospital{
       usr.push(this._staff[i].username)
       pwd.push(this._staff[i].password)
     }
-    prompt.get(schema, function (err, result) {
+    prompt.get(login, function (err, result) {
     for(var i=0; i<usr.length; i++){
       if(result.username == usr[i] && result.password == pwd[i]){
-        console.log(`Welcome ${result.username} ! Your Access level is Doctor`);
+        Interface.clearScreen()
         Interface.showMenu()
       } else {
         console.log(`Not Found !`)
@@ -68,8 +110,44 @@ class Hospital{
   });
   }
 
-  static authentication(){
+  static view(hospital){
+    Interface.clearScreen()
+    console.log(`Patient List : `);
+    for(var i=0; i<hospital.patient.length; i++){
+      console.log(`Patient ID ${i+1} | Name : ${hospital.patient[i]._name} | Diagnose : ${hospital.patient[i]._diseases}`);
+    }
+  }
 
+  static addPatient(hospital){
+    prompt.get(add, function (err, result){
+
+      hospital.patient.push(result)
+      Hospital.view(hospital)
+      Interface.showMenu()
+    })
+  }
+
+  static removePatient(hospital){
+    console.log(`Input Patient id to remove : `);
+    prompt.get(rmv, function (err, result){
+      var temp = result.id_patient
+      hospital.patient.splice(temp-1,1)
+      Hospital.view(hospital)
+      Interface.showMenu()
+    })
+  }
+
+  static find(hospital){
+    console.log(`Input Patient id to view : `);
+    prompt.get(find, function (err, result){
+      console.log(hospital.patient[result.id_patient]);
+        console.log(`================= PATIENT DATA ===============`);
+        console.log(`Patient name : ${hospital.patient[result.id_patient].name}`);
+        console.log(`Patient diseases : ${hospital.patient[result.id_patient].diseases}`);
+
+
+      Interface.showMenu()
+    })
   }
 
 }
@@ -100,6 +178,10 @@ class Patient{
     this._name = property['name']
     this._diseases = property['diseases']
   }
+  set name(value){this._name = value}
+  get name(){return this._name}
+  set diseases(value){this._diseases = value}
+  get diseases(){return this._diseases}
 }
 
 class Interface{
@@ -121,20 +203,54 @@ class Interface{
     console.log(`==========================`);
   }
 
-  static showMenu(){
-    Interface.clearScreen()
-    Interface.home()
+  static doctorMenu(){
+    console.log(`==========================`);
+    console.log(`Welcome to Mangku Hospital`);
+    console.log(`==========================`);
     console.log(`What would you like to do ? `);
     console.log(`Options : `);
     console.log(`[1] View All Patient`);
     console.log(`[2] Find Record`);
     console.log(`[3] Add Record`);
     console.log(`[4] Remove Record`);
+    console.log(`[0] Exit Program`);
+
+  }
+
+  static showMenu(){
+    Interface.doctorMenu()
+    prompt.get(menu, function(err, result){
+      switch(result.action){
+        case '1' :
+          Interface.clearScreen()
+          Hospital.view(hospital)
+          Interface.showMenu()
+          break
+        case '2' :
+          Hospital.find(hospital)
+          break
+        case '3' :
+          Hospital.addPatient(hospital)
+          break
+        case '4' :
+          Hospital.removePatient(hospital)
+          break
+        case '0' :
+          break
+        default :
+          Interface.clearScreen()
+          console.log(`Action not recognized`);
+          Interface.showMenu()
+          break
+      }
+    })
   }
 
 }
 var hospital = new Hospital()
 var mangku = new Staff({name:'Mangku', job:'Doctor', salary:10000000, username:'mangku', password:'mangku123'})
+var toni = new Patient({name:'Toni', diseases:'Pusing'})
 prompt.message = colors.blue('~>')
 hospital.addStaff(mangku)
+hospital.addPatient(toni)
 hospital.welcome()
