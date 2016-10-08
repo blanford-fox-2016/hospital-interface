@@ -22,14 +22,29 @@ for(var i = 0; i<readPatient.length; i++) {
 
 var argv = process.argv
 
-let printHome = () => {
-    console.log("What would you like to do?");
-    console.log("Options:");
-    console.log("- list_patients");
-    console.log("- add_patient <name>");
-    console.log("- view_record <patient_id>");
-    console.log("- add_record <patient_id> <text record>");
-    console.log("- remove_record <patient_id> <text record>");
+let printHome = (level) => {
+    if(level == "admin") {
+      console.log("What would you like to do?");
+      console.log("Options:");
+      console.log("- list_patients");
+      console.log("- add_patient <name>");
+      console.log("- view_record <patient_id>");
+      console.log("- add_record <patient_id> <text record>");
+      console.log("- remove_record <patient_id> <text record>");
+      console.log("- add_employee <username> <level>");
+    }
+    else if (level == "doctor") {
+      console.log("What would you like to do?");
+      console.log("Options:");
+      console.log("- list_patients");
+      console.log("- add_patient <name>");
+      console.log("- view_record <patient_id>");
+      console.log("- add_record <patient_id> <text record>");
+      console.log("- remove_record <patient_id> <text record>");
+    }
+    else if (level == "office boy") {
+      console.log("===================");
+    }
 }
 
 let searchIndexPatient = (id) => {
@@ -61,6 +76,14 @@ let joinName = (inputName) => {
   return name
 }
 
+let joinLevel = (inputName) => {
+  var name = ""
+  for (var i = 2; i < inputName.length; i++) {
+    name += inputName[i] + (i < inputName.length-1 ? " " : "")
+  }
+  return name
+}
+
 let inputAnswer = () => {
   prompt.get(['input'], function(err, result){
 
@@ -81,6 +104,19 @@ let inputAnswer = () => {
     else if (userInput[0] == "remove_record") {
       Patient.removePatientRecord(userInput[1], userInput)
     }
+    else if (userInput[0] == "add_employee") {
+      // console.log(joinLevel(userInput));
+      if (joinLevel(userInput).toLowerCase() === "doctor") {
+        data.push(new Doctor(data[data.length-1].id+1, userInput[1], "1234", "doctor"))
+        jsonfile.writeFileSync(file, data)
+        console.log(`Added employee ${userInput[1]}`);
+      }
+      else if (joinLevel(userInput).toLowerCase() === "office boy"){
+        data.push(new Doctor(data[data.length-1].id+1, userInput[1], "1234", "office boy"))
+        jsonfile.writeFileSync(file, data)
+        console.log(`Added employee ${userInput[1]}`);
+      }
+    }
     inputAnswer()
   })
 }
@@ -96,7 +132,7 @@ prompt.get(['username', 'password'], function(err, result) {
             console.log(`Welcome, ${result.username}. Your acces level is ${data[i].level}`);
             console.log("--------------------------------------------------------------------");
 
-            printHome()
+            printHome(data[i].level)
             inputAnswer()
 
         }
@@ -164,22 +200,23 @@ class Patient {
 }
 
 class Employee {
-    constructor(id, username) {
+    constructor(id, username, password) {
         this.id = id
-        this.nama = username
+        this.username = username
+        this.password = password
     }
 }
 
 class Doctor extends Employee {
-    constructor(id, username, level) {
-        super(id, username)
+    constructor(id, username, password, level) {
+        super(id, username, password)
         this.level = level
     }
 }
 
 class OfficeBoy extends Employee {
-    constructor(id, username, level) {
-        super(id, username)
+    constructor(id, username, password, level) {
+        super(id, username, password)
         this.level = level
     }
 }

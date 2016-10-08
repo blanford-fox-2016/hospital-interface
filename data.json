@@ -1,16 +1,1 @@
-[{
-    "id": 1,
-    "username": "dharmadi",
-    "password": "asdasd",
-    "level": "admin"
-}, {
-    "id": 2,
-    "username": "andi",
-    "password": "asdasd",
-    "level": "office boy"
-}, {
-    "id": 3,
-    "username": "budi",
-    "password": "asdasd",
-    "level": "doctor"
-}]
+[{"id":1,"username":"dharmadi","password":"asdasd","level":"admin"},{"id":2,"username":"andi","password":"asdasd","level":"office boy"},{"id":3,"username":"budi","password":"asdasd","level":"doctor"},{"id":4,"username":"mangku","password":"1234","level":"office boy"},{"id":5,"username":"test","password":"1234","level":"doctor"}]
