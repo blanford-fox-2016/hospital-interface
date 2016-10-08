@@ -1,0 +1,13 @@
+[{
+    "id": 1,
+    "name": "orang satu",
+    "record": ["pilek", "batuk"]
+}, {
+    "id": 2,
+    "name": "orang dua",
+    "record": ["demam", "cacar"]
+}, {
+    "id": 3,
+    "name": "orang ketiga",
+    "record": ["pilek"]
+}]
