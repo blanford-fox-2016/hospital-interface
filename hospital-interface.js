@@ -11,6 +11,7 @@ let parseKaryawan = JSON.parse(listKaryawan);
 let usernameKar = [];
 let passwordKar = [];
 // console.log(parsePasien[0].name);
+var sessionLevel = ""
 
 class Hospital{
   constructor(args={}){
@@ -43,36 +44,174 @@ class Karyawan{
   }
 }
 
-class Dokter extends Karyawan{
 
-  constuctor(name, age, position, level){
-    // super(name, age, position, level);
+class Interface {
+  constructor() {
+
+  }
+  updJSON(file, newdata) {
+    fs.writeFile(file, JSON.stringify(newdata), "utf8", (err) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log(`\nData ${file} updated!\n`);
+      }
+      rl.question("Press enter to continue.", (input)=>{
+        this.start()
+    })
+
+    })
+  }
+  list() {
+    if(sessionLevel == 'dokter' || sessionLevel == 'nurse' || sessionLevel == 'receptionist'){
+      for (var i = 0; i < parsePasien.length; i++) {
+        console.log("-----------------------------------");
+        console.log(`id: ${parsePasien[i].id}`);
+        console.log(`name: ${parsePasien[i].name}`);
+        console.log(`age: ${parsePasien[i].age}`);
+
+      }
+      rl.question("Press enter to continue.\n", (input) =>{
+        this.start()
+      })
+    }
+    else {
+      console.log("You are not allowed to access this feature!");
+      rl.question("Press enter to continue.", (input)=>{
+        this.start()
+    })
+    }
+
+  }
+  viewrecords(pid) {
+    if(sessionLevel == 'dokter' || sessionLevel == 'nurse' || sessionLevel == 'receptionist'){
+      for (var i = 0; i < parsePasien.length; i++) {
+        if(parsePasien[i].id == pid){
+          console.log(parsePasien[i].records);
+        }
+      }
+      rl.question("Press enter to continue.\n", (input) =>{
+        this.start()
+      })
+    }
+    else{
+      console.log("You are not allowed to access this feature!");
+      rl.question("Press enter to continue.", (input)=>{
+        this.start()
+    })
+    }
+  }
+  addrecord(pid, keluhan) {
+    if(sessionLevel == 'receptionist' || sessionLevel == 'dokter'){
+      for (var i = 0; i < parsePasien.length; i++) {
+        if(parsePasien[i].id == pid){
+          parsePasien[i].records.push({
+            'id': parsePasien[i].records.length+1,
+            'keluhan': keluhan,
+            'date_admitted': new Date(),
+            'date_released': '',
+          })
+          this.updJSON('pasien.json', parsePasien);
+        }
+      }
+
+    }
+    else{
+      console.log("You are not allowed to access this feature!");
+      rl.question("Press enter to continue.", (input)=>{
+        this.start()
+    })
+    }
+
+  }
+  removerecord(pid, rid) {
+    if(sessionLevel == 'receptionist'){
+      for (var i = 0; i < parsePasien.length; i++) {
+        if(parsePasien[i].id == pid){
+          for (var j = 0; j < parsePasien[i].records.length; j++) {
+            if(parsePasien[i].records[j].id == rid){
+              parsePasien[i].records.splice(j, 1)
+            }
+          }
+        }
+      }
+      this.updJSON('pasien.json', parsePasien);
+    }
+    else {
+      console.log("You are not allowed to access this feature!");
+      rl.question("Press enter to continue.", (input)=>{
+        this.start()
+    })
+    }
+
+  }
+
+  start(){
+    rl.question("What would you like to do?\nOptions:\n-list_patients\n-view_records <patient_id>\n-add_record <patient_id> <keluhan>\n-remove_record <patient_id> <record_id>\n-exit\n\n", (input) =>{
+      var cmd = input.split(' ');
+      var key = cmd[0];
+      var arg = cmd[1];
+      var arg_ = cmd.splice(2, cmd.length-2);
+      switch (key) {
+        case "list_patients":
+          this.list()
+          break;
+        case "view_records":
+          this.viewrecords(arg)
+          break;
+        case "add_record":
+          this.addrecord(arg,arg_.join(" "))
+          break;
+        case "remove_record":
+          this.removerecord(arg,arg_.join(""))
+          break;
+        case "exit":
+          rl.close();
+          break;
+        default:
+          console.log("Please input a valid command.");
+          this.start()
+      }
+
+    })
   }
 }
+let hospitalInterface = new Interface()
 
-class Perawat extends Karyawan{
-
-  constuctor(name, age, position, level){
-    // super(name, age, position, level);
-  }
-}
-
-class Staff extends Karyawan{
-
-  constuctor(name, age, position, level){
-    // super(name, age, position, level);
-  }
-}
-
-class OfficeBoy extends Karyawan{
-
-}
 
 class Login {
   constructor() {
     this.karyawan = parseKaryawan;
   }
-
+  cekUName(username) {
+    this.getUName()
+    if(usernameKar.indexOf(username) >= 0){
+      rl.question("Please enter a password:\n", (password) => {
+        this.cekPass(password)
+      })
+    }
+    else{
+        console.log("Invalid username\n");
+        rl.question("Please enter a username:\n", (username) =>{
+          this.cekUName(username)
+        })
+    }
+  }
+  cekPass(password){
+    this.getPass()
+    let idx = passwordKar.indexOf(password);
+    if (idx >= 0) {
+      console.log(`\nHello, ${usernameKar[idx]}, your access level is: ${parseKaryawan[idx].position.toUpperCase()}\n`);
+      sessionLevel += parseKaryawan[idx].position;
+      hospitalInterface.start()
+    }
+    else{
+      console.log("Invalid password!\n");
+      rl.question("Please enter a password:\n", (password)=>{
+        this.cekPass(password)
+      })
+    }
+  }
   getUName() {
     for (var i = 0; i < parseKaryawan.length; i++) {
       usernameKar.push(parseKaryawan[i].username);
@@ -86,10 +225,10 @@ class Login {
   }
 }
 
+
+
 let login = new Login();
-login.getUName();
-login.getPass();
-console.log();
+
 
 // var Henry = {
 //   id : parsePasien[parsePasien.length - 1].id + 1,
@@ -110,37 +249,13 @@ const rl = readline.createInterface({
   output: process.stdout,
   prompt: '> '
 });
-
-
+// console.log(parsePasien[2]);
+//
 console.log("Welcome to Hacktiv Hospital! \n------------------------");
-rl.setPrompt("Please enter a username:\n")
-
-rl.prompt();
-
-rl.on('line', (line) =>{
-  if (usernameKar.indexOf(line) !== -1){
-    var indexuser = usernameKar.indexOf(line);
-    rl.setPrompt("Now, enter the password of " + line + "\n");
-    rl.prompt();
-
-    rl.on('line', (line) =>{
-      if (passwordKar.indexOf(line) === -1 || passwordKar.indexOf(line) != indexuser) {
-        console.log("Failed to login!");
-        rl.close()
-      }
-      else {
-        console.log("Login success!");
-        rl.close()
-      }
-    })
-  }
-  else{
-    console.log("Username not found! Try again!");
-    rl.prompt();
-  }
-
+rl.question("Please enter a username:\n", (username) =>{
+  login.cekUName(username)
 })
-
+//
 // rl.on('line', (line) => {
 //   if (line === "list-pasien") {
     // console.log(parsePasien);
