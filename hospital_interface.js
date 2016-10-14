@@ -6,27 +6,32 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
+const fs = require('fs');
+var data = fs.readFileSync('data.json');
+var parseData = JSON.parse(data);
+
 class Interface{
   constructor(){
     this.user = [];
     this.pass = [];
+    this.cmd = []
+    this.perintah = this.cmd.join("")
   }
 
   login(){
     rl.prompt()
-    var user = [];
-    var pass = [];
     rl.question('Please enter your username: ', (username) => {
       rl.question('Please enter your password: ', (password) => {
         this.user.push(`${username}`);
         this.pass.push(`${password}`);
-        if () {
-          this.home()
-        }
-        rl.close()
+          if (parseData[0]['user'] == username && parseData[0]['password'] == password){
+            this.home();
+            this.option();
+          } else {
+            rl.close()
+          }
       });
     });
-
   }
 
   welcome(){
@@ -36,8 +41,19 @@ class Interface{
 
   home(){
     console.log("-----------------------------------");
-    console.log(`Selamat datang, ${this.user[0]}. Your access level is Doctor`);
+    console.log(`Selamat datang, ${this.user[0]}. Your access level is Admin`);
     console.log("-----------------------------------");
+  }
+
+  option(){
+    rl.question(`Apa yang ingin anda lakukan?\n Options:\n -list_patients\n -view_records <patient_id\n -add_record <patient_id \n remove_record <patient_id><record_id>\n`, (input) =>{
+      var perintah = input.split(" ");
+      this.perintah();
+    })
+  }
+
+  perintah(){
+    console.log("input");
   }
 }
 
@@ -54,21 +70,23 @@ class Hospital{
 class Person {
   constructor() {
     this.nama = nama;
+    this.username = username;
+    this.password =  password
     this.birthdate = birthdate;
     this.accessLevel = accessLevel;
   }
 }
 
 class Pasien extends Person{
-  constructor(nama, birthdate, accessLevel){
-    super(nama, birthdate, accessLevel)
+  constructor(nama, username, password, birthdate, accessLevel){
+    super(nama, username, password, birthdate, accessLevel)
     this.penyakit = penyakit;
   }
 }
 
 class Karyawan extends Person{
-  constructor(nama, birthdate, accessLevel){
-    super(nama, birthdate, accessLevel)
+  constructor(nama, username, password, birthdate, accessLevel){
+    super(nama, username, password, birthdate, accessLevel)
     this.role = role;
   }
 }
