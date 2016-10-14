@@ -9,6 +9,11 @@
 const fs = require('fs');
 var data = fs.readFileSync('data.json');
 var parseData = JSON.parse(data);
+var insider = fs.readFileSync('databaseRS.json')
+var parseDatabaseRS = JSON.parse(insider);
+var pasien = fs.readFileSync('DataKorban.json')
+var pasienkita = JSON.parse(pasien)
+var allOfUs = parseDatabaseRS
 
 class Interface{
   constructor(){
@@ -69,7 +74,7 @@ class Hospital{
 
 class Person {
   constructor(id, nama, username, password, birthdate) {
-    this.id = id;
+    this.id = allOfUs[allOfUs.length-1].id +1 || 1;
     this.nama = nama;
     this.username = username;
     this.password =  password
@@ -78,9 +83,11 @@ class Person {
   }
 }
 
-class Pasien extends Person{
+class Pasien{
   constructor(id, nama, birthdate, penyakit){
-    super(nama, birthdate)
+    this.id = pasienkita[pasienkita.length-1].id +1 || 1;
+    this.nama = nama;
+    this.birthdate = birthdate;
     this.penyakit = penyakit;
   }
 }
@@ -97,16 +104,25 @@ class Admin extends Karyawan{
     super(id, nama, username, password, birthdate)
     this.accessLevel = 3;
   }
-  add_person(person, id, nama, username, password, birthdate){
+  add_karyawan(id, nama, username, password, birthdate){
     var baru = new Karyawan(id, nama, username, password, birthdate)
+    allOfUs.push(baru)
+    var write = JSON.stringify(allOfUs);
+    fs.writeFileSync('databaseRS.json', write)
   }
 
   add_dokter(id, nama, username, password, birthdate){
     var baru = new Dokter(id, nama, username, password, birthdate)
+    allOfUs.push(baru)
+    var write = JSON.stringify(allOfUs);
+    fs.writeFileSync('databaseRS.json', write)
   }
 
-  add_pasien(id, nama, username, password, birthdate){
-    var baru = new Pasien(id, nama, username, password, birthdate)
+  add_pasien(id, nama, birthdate, penyakit){
+    var baru = new Pasien(id, nama, birthdate, penyakit)
+    pasienkita.push(baru)
+    var write = JSON.stringify(pasienkita);
+    fs.writeFileSync('DataKorban.json', write)
   }
 }
 
@@ -116,7 +132,9 @@ class Dokter extends Karyawan{
     this.accessLevel = 2
   }
   list_patients(){
-
+    for (var i = 0; i<pasienkita.length; i++){
+      console.log(pasienkita[i]);
+    }
   }
   view_records(patient_id){
 
@@ -130,7 +148,11 @@ class Dokter extends Karyawan{
 }
 
 var muka = new Interface()
-var saya = new Dokter(1, "Syanmil", "test", "rahasia", "17/08/1990")
-console.log(saya["nama"]);
+var saya = new Dokter()
+var hacker = new Admin()
+saya.list_patients()
+// hacker.add_dokter(1,"Syanmil","master","dokter","masih muda pokoknya")
+hacker.add_pasien(0,"tamaboy", "fifteen years ago", "flu ringan")
+// console.log(pasienkita);
 // muka.welcome()
 // muka.login()
