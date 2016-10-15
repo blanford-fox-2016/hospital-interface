@@ -130,23 +130,30 @@ class Hospital{
   static removePatient(hospital){
     console.log(`Input Patient id to remove : `);
     prompt.get(rmv, function (err, result){
-      var temp = result.id_patient
-      hospital.patient.splice(temp-1,1)
-      Hospital.view(hospital)
-      Interface.showMenu()
+      if (parseInt(result.id_patient-1) >= hospital._patient.length) {
+        console.log(`Data not found !`);
+        Hospital.removePatient(hospital)
+      } else {
+        var temp = result.id_patient
+        hospital.patient.splice(temp-1,1)
+        Hospital.view(hospital)
+        Interface.showMenu()
+      }
     })
   }
 
   static find(hospital){
     console.log(`Input Patient id to view : `);
     prompt.get(find, function (err, result){
-      console.log(hospital.patient[result.id_patient]);
+      if (parseInt(result.id_patient-1) >= hospital._patient.length) {
+        console.log(`Data not found !`);
+        Hospital.find(hospital)
+      }else{
         console.log(`================= PATIENT DATA ===============`);
-        console.log(`Patient name : ${hospital.patient[result.id_patient].name}`);
-        console.log(`Patient diseases : ${hospital.patient[result.id_patient].diseases}`);
-
-
-      Interface.showMenu()
+        console.log(`Patient name : ${hospital._patient[result.id_patient-1]._name}`);
+        console.log(`Patient diseases : ${hospital._patient[result.id_patient-1]._diseases}`);
+        Interface.showMenu()
+      }
     })
   }
 
@@ -178,10 +185,6 @@ class Patient{
     this._name = property['name']
     this._diseases = property['diseases']
   }
-  set name(value){this._name = value}
-  get name(){return this._name}
-  set diseases(value){this._diseases = value}
-  get diseases(){return this._diseases}
 }
 
 class Interface{
