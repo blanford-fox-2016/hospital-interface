@@ -1,0 +1,24 @@
+{
+  "name": "hospital-interface",
+  "version": "1.0.0",
+  "description": "",
+  "main": "hospital.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blanford-fox-2016/hospital-interface.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/blanford-fox-2016/hospital-interface/issues"
+  },
+  "homepage": "https://github.com/blanford-fox-2016/hospital-interface#readme",
+  "dependencies": {
+    "prompt": "^1.0.0",
+    "readline": "^1.3.0"
+  },
+  "devDependencies": {}
+}
