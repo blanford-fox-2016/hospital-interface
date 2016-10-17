@@ -1,1 +1,1 @@
-[{"id":1,"nama":"tamaboy","birthdate":"fifteen years ago","penyakit":"flu ringan"}]
+[{"id":1,"nama":"tamaboy","birthdate":"fifteen years ago","penyakit":["flu ringan"],"record":["2016-10-17T16:46:49.056Z","2016-10-17T16:48:15.931Z"]},{"id":2,"nama":"yoniman","birthdate":"fifty years ago","penyakit":["flu ringan","raja siput"],"record":[]},{"id":3,"nama":"borjeus","birthdate":"beyond history","penyakit":["immortality","undead"],"record":["2016-10-17T16:42:18.020Z","2016-10-17T16:42:20.091Z","2016-10-17T16:48:55.036Z","2016-10-17T16:49:18.982Z"]}]

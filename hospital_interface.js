@@ -1,26 +1,24 @@
 "use strict"
 
-// const readline = require('readline');
-// const rl = readline.createInterface({
-//   input: process.stdin,
-//   output: process.stdout,
-// });
+const readline = require('readline');
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
 
 const fs = require('fs');
-var data = fs.readFileSync('data.json');
-var parseData = JSON.parse(data);
 var insider = fs.readFileSync('databaseRS.json')
-var parseDatabaseRS = JSON.parse(insider);
+var allOfUs = JSON.parse(insider);
 var pasien = fs.readFileSync('DataKorban.json')
 var pasienkita = JSON.parse(pasien)
-var allOfUs = parseDatabaseRS
 
 class Interface{
   constructor(){
     this.user = [];
     this.pass = [];
-    this.cmd = []
-    this.perintah = this.cmd.join("")
+    this.cmd = [];
+    this.active = 0;
+    this.perintah = this.cmd.join("");
   }
 
   login(){
@@ -29,36 +27,87 @@ class Interface{
       rl.question('Please enter your password: ', (password) => {
         this.user.push(`${username}`);
         this.pass.push(`${password}`);
-          if (parseData[0]['user'] == username && parseData[0]['password'] == password){
-            this.home();
-            this.option();
-          } else {
-            rl.close()
-          }
+        if (this.cek() === true){
+          this.home();
+          this.option();
+        } else {
+          console.log("password atau username salah");
+          rl.close()
+        }
       });
     });
-  }
+  };
+  cek(){
+    for (var i = 0; i <allOfUs.length; i++){
+      if (allOfUs[i].username === this.user[0]){
+        if (allOfUs[i].password === this.pass[0]){
+          this.active += i
+          return true
+        }
+      }
+    }
+    return false
+  };
 
   welcome(){
     console.log(`Selamat Datang di Rumah Sakit`);
     console.log("-----------------------------------");
-  }
+  };
 
   home(){
     console.log("-----------------------------------");
-    console.log(`Selamat datang, ${this.user[0]}. Your access level is Dokter`);
+    console.log(`Selamat datang, ${allOfUs[this.active].nama}. Your access level is ${allOfUs[this.active].accessLevel}`);
     console.log("-----------------------------------");
-  }
+  };
 
   option(){
-    rl.question(`Apa yang ingin anda lakukan?\n Options:\n -list_patients\n -view_records <patient_id\n -add_record <patient_id \n remove_record <patient_id><record_id>\n`, (input) =>{
-      var doso = input.split(" ");
-      this.perintah(doso);
-    })
+    if (allOfUs[this.active].accessLevel === 2){
+      console.log(`Apa yang ingin anda lakukan?\n Options:\n 1 -- list_patients\n 2 -- view_records <patient_id>\n 3 -- add_record <patient_id> \n 4 -- remove_record <patient_id><record_id>\n`)
+    } else if(allOfUs[this.active].accessLevel === 3){
+      console.log(`Apa yang ingin anda lakukan?\n Options:\n 1 -- list_karyawan\n 2 -- tambah_karyawan\n 3 -- pecat_karyawan\n 4 -- tambah_pasien\n`)
+    };
+  this.test();
   }
   //masih nyangkut disini untuk readlinenya
-  perintah(doso){
-    console.log("input");
+  test(){
+    if (allOfUs[this.active].accessLevel === 2){
+      rl.question("pilih angka perintah yang digunakan : ", (cmd) =>{
+        cmd = cmd.split(" ");
+        switch (cmd[0]) {
+          case "1":
+            saya.list_patients()
+            rl.close()
+            break;
+          case "2":
+              saya.view_records(cmd[1])
+              rl.close()
+            break;
+          case "3":
+              saya.add_record(cmd[1])
+              rl.close()
+            break;
+          case "4":
+              saya.remove_record(cmd[1], cmd[2])
+              rl.close()
+            break;
+          default:
+            rl.close()
+        }
+      });
+    } else if (allOfUs[this.active].accessLevel === 3){
+      rl.question("pilih angka perintah yang digunakan : ", (cmd) =>{
+        switch (cmd) {
+          case "2":
+            hacker.add_karyawan()
+            break;
+          default:
+            rl.close()
+
+        }
+      });
+    } else {
+      rl.close
+    }
   }
 }
 
@@ -84,11 +133,12 @@ class Person {
 }
 
 class Pasien{
-  constructor(id, nama, birthdate, penyakit){
+  constructor(id, nama, birthdate, penyakit, record){
     this.id = pasienkita[pasienkita.length-1].id +1 || 1;
     this.nama = nama;
     this.birthdate = birthdate;
     this.penyakit = penyakit;
+    this.record = []
   }
 }
 
@@ -133,26 +183,36 @@ class Dokter extends Karyawan{
   }
   list_patients(){
     for (var i = 0; i<pasienkita.length; i++){
-      console.log(pasienkita[i]);
+      console.log(`id ${pasienkita[i].id} || ${pasienkita[i].nama}`);
     }
   }
   view_records(patient_id){
-
+    console.log(`Daftar riwayat penyakit ${pasienkita[patient_id-1].nama} adalah ${pasienkita[patient_id-1].penyakit}`);
+    console.log(`daftar periksa :\n ${pasienkita[patient_id-1].record}`);
   }
   add_record(patient_id){
-
+    var date = new Date()
+    date.toDateString()
+    var add = pasienkita[patient_id-1]['record']
+    add.push(date);
+    var write = JSON.stringify(pasienkita);
+    fs.writeFileSync('DataKorban.json', write)
+    this.view_records(patient_id);
   }
   remove_record(patient_id, record_id){
-
+    pasienkita[patient_id-1]['record'].splice(record_id,1)
   }
 }
 
 var muka = new Interface()
 var saya = new Dokter()
 var hacker = new Admin()
-saya.list_patients()
+// saya.list_patients()
+// saya.add_record(2)
+// saya.view_records(1)
+// saya.remove_record(2,0)
 // hacker.add_dokter(1,"Syanmil","master","dokter","masih muda pokoknya")
-hacker.add_pasien(0,"tamaboy", "fifteen years ago", "flu ringan")
+// hacker.add_pasien(0,"borjeus", "beyond history", ["immortality", "undead"])
 // console.log(pasienkita);
-// muka.welcome()
-// muka.login()
+muka.welcome()
+muka.login()
